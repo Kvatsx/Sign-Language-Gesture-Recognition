@@ -105,3 +105,6 @@ venv.bak/
 
 # Dataset
 Data/
+
+
+.DS_Store
