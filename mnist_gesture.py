@@ -127,9 +127,9 @@ def Hog(x_data, y_data, n_images=5):
     return features, y_data
 
 
-NX_Train,  NY_Train = SiftFeatures(X_Train, Y_Train)
-# NX_Train,  NY_Train = Hog(X_Train, Y_Train)
-# NX_Test,  NY_Test = Hog(X_Test, Y_Test)
+# NX_Train,  NY_Train = SiftFeatures(X_Train, Y_Train)
+NX_Train,  NY_Train = Hog(X_Train, Y_Train)
+NX_Test,  NY_Test = Hog(X_Test, Y_Test)
 
 # np.save(PATH + "NX_Train.npy", NX_Train)
 # np.save(PATH + "NY_Train.npy", NY_Train)
@@ -145,55 +145,67 @@ print("[+] Features Extraction Done")
 
 # Unsupervised Learning ----------------------------------------
 
-print("[+] Unsupervised Learning[KMeans]...")
+# print("[+] Unsupervised Learning[KMeans]...")
 
-kmeans = KMeans(n_clusters=100, n_jobs=-1)
-kmeans.fit(NX_Train)
-pickle.dump(kmeans, open(PATH + "Kmean.sav", 'wb'))
+# kmeans = KMeans(n_clusters=100, n_jobs=-1)
+# kmeans.fit(NX_Train)
+# pickle.dump(kmeans, open(PATH + "Kmean.sav", 'wb'))
 
-# Creating Bag of Visual Words (Creating Vocaboulary)
-def Bovw(kmeans, x_data, y_data):
-    sift = cv2.xfeatures2d.SIFT_create()
-    features = []
-    labels = []
+# # Creating Bag of Visual Words (Creating Vocaboulary)
+# def Bovw(kmeans, x_data, y_data):
+#     sift = cv2.xfeatures2d.SIFT_create()
+#     features = []
+#     labels = []
 
-    for i in range(x_data.shape[0]):
-        image = np.reshape(x_data[i], (28, 28))
-        histogram = np.zeros(len(kmeans.cluster_centers_))
-        kp, des = sift.detectAndCompute(image, None)
-        if des is None:
-            continue
-        nkp = np.size(kp)
-        labels.append(y_data[i])
-        for d in des:
-            idx = kmeans.predict(np.reshape(d, (1, d.shape[0])))
-            histogram[idx] += 1 / nkp
+#     for i in range(x_data.shape[0]):
+#         image = np.reshape(x_data[i], (28, 28))
+#         histogram = np.zeros(len(kmeans.cluster_centers_))
+#         kp, des = sift.detectAndCompute(image, None)
+#         if des is None:
+#             continue
+#         nkp = np.size(kp)
+#         labels.append(y_data[i])
+#         for d in des:
+#             idx = kmeans.predict(np.reshape(d, (1, d.shape[0])))
+#             histogram[idx] += 1 / nkp
 
-        features.append(histogram)
+#         features.append(histogram)
 
-    features = np.asarray(features)
-    labels = np.asarray(labels)
+#     features = np.asarray(features)
+#     labels = np.asarray(labels)
 
-    print("Features shape: {}".format(features.shape))
-    print("Labels shape: {}".format(labels.shape))
-    return features, labels
+#     print("Features shape: {}".format(features.shape))
+#     print("Labels shape: {}".format(labels.shape))
+#     return features, labels
 
-NX_Train, NY_Train = Bovw(kmeans, X_Train, Y_Train)
-NX_Test, NY_Test = Bovw(kmeans, X_Test, Y_Test)
+# NX_Train, NY_Train = Bovw(kmeans, X_Train, Y_Train)
+# NX_Test, NY_Test = Bovw(kmeans, X_Test, Y_Test)
 
 
 
-# np.save(PATH + "NX_Train.npy", NX_Train)
-# np.save(PATH + "NY_Train.npy", NY_Train)
-# np.save(PATH + "X_Test.npy", X_Train)
-# np.save(PATH + "Y_Test.npy", Y_Train)
+# # np.save(PATH + "NX_Train.npy", NX_Train)
+# # np.save(PATH + "NY_Train.npy", NY_Train)
+# # np.save(PATH + "X_Test.npy", X_Train)
+# # np.save(PATH + "Y_Test.npy", Y_Train)
 
-# NX_Train = np.load(PATH + "NX_Train.npy")
-# NY_Train = np.load(PATH + "NY_Train.npy")
-# X_Test = np.load(PATH + "X_Test.npy")
-# Y_Test = np.load(PATH + "Y_Test.npy")
+# # NX_Train = np.load(PATH + "NX_Train.npy")
+# # NY_Train = np.load(PATH + "NY_Train.npy")
+# # X_Test = np.load(PATH + "X_Test.npy")
+# # Y_Test = np.load(PATH + "Y_Test.npy")
 
-print("[+] Unsupervised Learning[KMeans] Done")
+# print("[+] Unsupervised Learning[KMeans] Done")
+
+# Analysis -----------------------------------------------------
+print("Train data shape: {}".format(NX_Train.shape))
+print("Train data labels shape: {}".format(NY_Train.shape))
+print("Test data shape: {}".format(NX_Test.shape))
+print("Test data labels shape: {}".format(NY_Test.shape))
+
+# TODO: [1] PCA, [2] LDA, [3] PCA then LDA, [4] LDA then PCA
+
+
+
+
 
 
 # Training Classifier ------------------------------------------
