@@ -13,6 +13,7 @@ import torch
 import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
+from sklearn.decomposition import PCA
 
 # Data Reading ---------------------------------
 PATH = "./Data/MNIST/"
@@ -71,9 +72,9 @@ Train, Test = ReadData()
 
 print("[+] Data Reading done")
 # Convolution Neural Network Hyperparameter ---------------------------------------
-num_epochs = 30
-batch_size = 100
-learning_rate = 0.001
+num_epochs = 50
+batch_size = 512
+learning_rate = 0.0001
 
 # Data Loader ----------------------------------------------------
 train_loader = torch.utils.data.DataLoader(dataset=Train, batch_size=batch_size, shuffle=True)
@@ -95,19 +96,25 @@ class ConvNet(nn.Module):
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2))
-        self.layer2 = nn.Sequential(
-            nn.Conv2d(16, 32, kernel_size=5, stride=1, padding=2),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2))
-        self.fc1 = nn.Linear(7*7*32, num_classes)
+        # self.layer2 = nn.Sequential(
+        #     nn.Conv2d(16, 32, kernel_size=5, stride=1, padding=2),
+        #     nn.BatchNorm2d(32),
+        #     nn.ReLU(),
+        #     nn.MaxPool2d(kernel_size=2, stride=2))
+        self.fc1 = nn.Linear(14*14*16, num_classes)
+        # self.fc2 = nn.Linear(14*14*16, num_classes)
+        # self.relu = nn.ReLU()
         # self.soft = nn.Softmax()
         
     def forward(self, x):
+        # print(x.shape)
         out = self.layer1(x)
-        out = self.layer2(out)
-        out = out.reshape(out.size(0), -1)
+        # out = self.layer2(out)
+        # print(x.size(0))
+        out = np.reshape(x.size(0), -1)
+        # print(out.shape)
         out = self.fc1(out)
+        # out = self.relu(out)    
         # out = self.soft(out)
         return out
 
@@ -116,7 +123,8 @@ model = ConvNet().to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-
+LOSS = []
+ACC = []
 total_step = len(train_loader)
 for epoch in range(num_epochs):
     for i, (images, labels) in enumerate(train_loader):
@@ -134,8 +142,33 @@ for epoch in range(num_epochs):
         
         if (i+1) % 100 == 0:
             print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch+1, num_epochs, i+1, total_step, loss.item()))
+    with torch.no_grad():
+        correct = 0
+        total = 0
+        for images, labels in test_loader:
+            images = images.to(device)
+            labels = labels.to(device)
+            outputs = model(images.float())
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+    ACC.append(100 * correct / total)    
+    LOSS.append(loss.item())
 
 model.eval()
+with torch.no_grad():
+    correct = 0
+    total = 0
+    for images, labels in train_loader:
+        images = images.to(device)
+        labels = labels.to(device)
+        outputs = model(images.float())
+        _, predicted = torch.max(outputs.data, 1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
+
+    print('Train Accuracy of the model on the test images: {} %'.format(100 * correct / total))
+
 with torch.no_grad():
     correct = 0
     total = 0
@@ -147,10 +180,14 @@ with torch.no_grad():
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
 
-    print('Test Accuracy of the model on the 10000 test images: {} %'.format(100 * correct / total))
+    print('Test Accuracy of the model on the test images: {} %'.format(100 * correct / total))
 
 # Save the model checkpoint
 torch.save(model.state_dict(),PATH + 'model.ckpt')
+print(LOSS)
+print()
+print(ACC)
+# model.load_state_dict(torch.load(PATH + 'model.ckpt'))
 
 
 

@@ -128,18 +128,18 @@ def Hog(x_data, y_data, n_images=5):
 
 
 # NX_Train,  NY_Train = SiftFeatures(X_Train, Y_Train)
-NX_Train,  NY_Train = Hog(X_Train, Y_Train)
-NX_Test,  NY_Test = Hog(X_Test, Y_Test)
+# NX_Train,  NY_Train = Hog(X_Train, Y_Train)
+# NX_Test,  NY_Test = Hog(X_Test, Y_Test)
 
 # np.save(PATH + "NX_Train.npy", NX_Train)
 # np.save(PATH + "NY_Train.npy", NY_Train)
 # np.save(PATH + "NX_Test.npy", NX_Test)
 # np.save(PATH + "NY_Test.npy", NY_Test)
 
-# NX_Train = np.load(PATH + "NX_Train.npy")
-# NY_Train = np.load(PATH + "NY_Train.npy")
-# NX_Test = np.load(PATH + "NX_Test.npy")
-# NY_Test = np.load(PATH + "NY_Test.npy")
+NX_Train = np.load(PATH + "NX_Train.npy")
+NY_Train = np.load(PATH + "NY_Train.npy")
+NX_Test = np.load(PATH + "NX_Test.npy")
+NY_Test = np.load(PATH + "NY_Test.npy")
 
 print("[+] Features Extraction Done")
 
